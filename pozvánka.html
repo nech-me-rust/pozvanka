@@ -1,0 +1,580 @@
+﻿<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turnaj čtyř zmaštěných šampiónů</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Text:ital@0;1&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: linear-gradient(135deg, #0a0e27 0%, #16213e 50%, #0f3460 100%);
+            font-family: 'Crimson Text', serif;
+            color: #e8d5c4;
+            overflow: hidden;
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Animované hvězdy na pozadí */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* Magické částice */
+        .magic-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .particle {
+            position: absolute;
+            pointer-events: none;
+        }
+
+        /* Obálka */
+        .envelope-container {
+            position: relative;
+            z-index: 3;
+            perspective: 1000px;
+            animation: floatEnvelope 3s ease-in-out infinite;
+        }
+
+        @keyframes floatEnvelope {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .envelope {
+            width: 400px;
+            height: 250px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffd700 100%);
+            border: 3px solid #ffb300;
+            border-radius: 10px;
+            position: relative;
+            cursor: pointer;
+            box-shadow: 
+                0 0 40px rgba(255, 215, 0, 0.8),
+                0 0 80px rgba(255, 215, 0, 0.5),
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                inset 0 0 30px rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .envelope:hover {
+            transform: scale(1.05);
+            box-shadow: 
+                0 0 60px rgba(255, 215, 0, 1),
+                0 0 100px rgba(255, 215, 0, 0.7),
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                inset 0 0 40px rgba(255, 255, 255, 0.4);
+        }
+
+        .envelope::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.4) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        /* Vnitřek obálky */
+        .envelope-flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 0;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffd700 100%);
+            border: 3px solid #ffb300;
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+            animation: flapWave 2s ease-in-out infinite;
+            transform-origin: top;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+        }
+
+        @keyframes flapWave {
+            0%, 100% { transform: rotateX(0deg); }
+            50% { transform: rotateX(-10deg); }
+        }
+
+        /* Znak turnaje */
+        .seal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            z-index: 5;
+            animation: sealGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes sealGlow {
+            0%, 100% { filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.6)); }
+            50% { filter: drop-shadow(0 0 30px rgba(255, 215, 0, 1)); }
+        }
+
+        .seal-inner {
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 30%, #ffff99, #ffd700);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 4em;
+            font-weight: bold;
+            color: #8b0000;
+            border: 3px solid #8b0000;
+            box-shadow: 
+                0 0 20px rgba(255, 215, 0, 0.8),
+                inset 0 0 10px rgba(255, 255, 255, 0.3);
+            transform: rotate(0deg);
+            animation: sealRotate 20s linear infinite;
+        }
+
+        @keyframes sealRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Dopis */
+        .letter-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.7);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .letter-container.show {
+            display: flex;
+        }
+
+        .letter {
+            background: linear-gradient(135deg, #f4e8d0 0%, #ede0c8 100%);
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            padding: 50px;
+            border-radius: 5px;
+            border: 2px solid #8b4513;
+            box-shadow: 
+                0 10px 40px rgba(0, 0, 0, 0.5),
+                0 0 30px rgba(255, 215, 0, 0.3),
+                inset 0 0 30px rgba(255, 215, 0, 0.1);
+            overflow-y: auto;
+            position: relative;
+            animation: letterAppear 0.8s ease-out;
+        }
+
+        @keyframes letterAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.8) rotateZ(-5deg);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) rotateZ(0deg);
+            }
+        }
+
+        .letter::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(139, 69, 19, 0.03) 2px,
+                    rgba(139, 69, 19, 0.03) 4px
+                );
+            pointer-events: none;
+            border-radius: 5px;
+        }
+
+        .letter-content {
+            position: relative;
+            z-index: 1;
+            font-family: 'Crimson Text', serif;
+            font-size: 1.2em;
+            line-height: 1.8;
+            color: #2c1810;
+        }
+
+        .letter-header {
+            text-align: center;
+            margin-bottom: 40px;
+            font-family: 'Cinzel', serif;
+        }
+
+        .letter-header h1 {
+            font-size: 2.5em;
+            color: #8b0000;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+
+        .letter-seal-small {
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle at 30% 30%, #ffff99, #ffd700);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3em;
+            font-weight: bold;
+            color: #8b0000;
+            border: 2px solid #8b0000;
+            margin: 0 auto;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+        }
+
+        .letter-text {
+            margin: 30px 0;
+        }
+
+        .letter-text p {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .greeting {
+            font-style: italic;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .disciplines-list {
+            background: rgba(139, 69, 19, 0.1);
+            padding: 20px;
+            border-left: 4px solid #8b0000;
+            margin: 30px 0;
+            border-radius: 5px;
+        }
+
+        .disciplines-list h3 {
+            font-family: 'Cinzel', serif;
+            color: #8b0000;
+            margin-bottom: 15px;
+        }
+
+        .discipline-item {
+            margin-bottom: 12px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .discipline-item::before {
+            content: '✦';
+            position: absolute;
+            left: 0;
+            color: #ffd700;
+        }
+
+        .signature {
+            margin-top: 40px;
+            text-align: right;
+            font-style: italic;
+        }
+
+        .close-letter {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #8b0000;
+            color: #f4e8d0;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.5em;
+            cursor: pointer;
+            z-index: 2;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(139, 0, 0, 0.5);
+        }
+
+        .close-letter:hover {
+            background: #c41e3a;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+        }
+
+        .sound-toggle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #ffd700;
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 1.8em;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            transition: all 0.3s ease;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .sound-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.8); }
+        }
+
+        @media (max-width: 768px) {
+            .envelope {
+                width: 300px;
+                height: 200px;
+            }
+
+            .letter {
+                width: 95%;
+                padding: 30px;
+            }
+
+            .letter-content {
+                font-size: 1em;
+            }
+
+            .letter-header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="starsContainer"></div>
+    <div class="magic-particles" id="particlesContainer"></div>
+
+    <!-- Obálka -->
+    <div class="envelope-container" id="envelopeContainer">
+        <div class="envelope" id="envelope">
+            <div class="envelope-flap"></div>
+            <div class="seal">
+                <div class="seal-inner">⚔️</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dopis -->
+    <div class="letter-container" id="letterContainer">
+        <div class="letter">
+            <button class="close-letter" id="closeLetter">✕</button>
+            <div class="letter-content">
+                <div class="letter-header">
+                    <h1>POZVÁNÍ</h1>
+                    <div class="letter-seal-small">⚔️</div>
+                </div>
+
+                <div class="letter-text">
+                    <p class="greeting">Čestný mladý mistře,</p>
+
+                    <p>S velkým potěšením a v duchu tradice největších soutěží vám tímto oznamujeme, že jste vybrán pro účast v prestižní soutěži tisíciletí:</p>
+
+                    <h2 style="text-align: center; font-family: 'Cinzel', serif; color: #8b0000; margin: 30px 0; font-size: 1.8em;">TURNAJ ČTYŘ ZMAŠTĚNÝCH ŠAMPIÓNŮ</h2>
+
+                    <p>Tato soutěž slučuje nejlepší stratégy a myslitele, aby se střetli v epických bitvách intelektu a vůle. Pouze ti nejskvělejší a nejodvážnější si mohou dovolit vrhnout se do této výzvy.</p>
+
+                    <div class="disciplines-list">
+                        <h3>Disciplíny turnaje:</h3>
+                        <div class="discipline-item"><strong>Šachy (offline)</strong> - FIDE pravidla • 10+5 minut</div>
+                        <div class="discipline-item"><strong>Šachy (online)</strong> - FIDE pravidla • 3+5 minut</div>
+                        <div class="discipline-item"><strong>Poker</strong> - No Limit Texas Hold'em • 100.000 starting stack • Level 1: SB 50, BB 100 • 10 minut na level</div>
+                        <div class="discipline-item"><strong>Osadníci z Katanu</strong> - Standardní pravidla</div>
+                        <div class="discipline-item"><strong>Bang!</strong> - Standardní pravidla</div>
+                        <div class="discipline-item"><strong>Další překvapení</strong> - Dle dohody všech účastníků</div>
+                    </div>
+
+                    <p><strong>Začátek:</strong> 19. října 2025</p>
+                    <p><strong>Konec:</strong> 20. března 2026</p>
+                    <p>Zápasy začínají po domluvě minimálního počtu hráčů pro danou disciplínu</p>
+                    <p>Účastníci budou hodnoceni podle jejich umístění v jednotlivých disciplínách. Titul Zmaštěného Šampióna si odvezou ti nejúspěšnější.</p>
+
+                    <p>Tato pozvánka je osobní a nepřenosná. Vaše účast bude svědectvím Vaší odvahy, dovednosti a vůle zvítězit. Přečtením této pozvánky jste automaticky zapsáni.</p>
+
+                    <div class="signature">
+                        <p style="margin-bottom: 20px;">S vřelými přáními k úspěchu,</p>
+                        <p style="font-weight: bold; font-size: 1.3em;">Pořadatel Turnaje</p>
+                        <p style="margin-top: 20px; font-size: 0.9em;">✦ In honore et gloria ✦</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="sound-toggle" id="soundToggle" title="Zapnout/Vypnout zvuk">
+        <span class="sound-icon">🔊</span>
+    </button>
+
+    <script>
+        // Vytváření hvězd
+        const starsContainer = document.getElementById('starsContainer');
+        for (let i = 0; i < 100; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            starsContainer.appendChild(star);
+        }
+
+        // Vytváření magických částic
+        const particlesContainer = document.getElementById('particlesContainer');
+        
+        function createParticle(x, y) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = x + 'px';
+            particle.style.top = y + 'px';
+            particle.style.width = Math.random() * 10 + 5 + 'px';
+            particle.style.height = particle.style.width;
+            
+            const colors = ['#ffd700', '#ff69b4', '#64b5f6', '#9575cd'];
+            particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+            particle.style.borderRadius = '50%';
+            particle.style.opacity = '0.8';
+            particle.style.boxShadow = '0 0 10px ' + particle.style.background;
+            
+            particlesContainer.appendChild(particle);
+            
+            let lifetime = 60;
+            const interval = setInterval(() => {
+                lifetime--;
+                particle.style.opacity = lifetime / 60;
+                particle.style.transform = `translate(${Math.random() * 100 - 50}px, ${-lifetime}px)`;
+                
+                if (lifetime <= 0) {
+                    clearInterval(interval);
+                    particle.remove();
+                }
+            }, 30);
+        }
+
+        // Částice při pohybu myši
+        document.addEventListener('mousemove', (e) => {
+            if (Math.random() > 0.8) {
+                createParticle(e.clientX, e.clientY);
+            }
+        });
+
+        // Zvukové efekty
+        let soundEnabled = true;
+        const soundToggle = document.getElementById('soundToggle');
+        
+        function playSound(frequency, duration, type = 'sine') {
+            if (!soundEnabled) return;
+            
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = frequency;
+                oscillator.type = type;
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+            } catch(e) {}
+        }
+
+        function playMagicSound() {
+            playSound(800, 0.1);
+            setTimeout(() => playSound(1200, 0.1), 100);
+            setTimeout(() => playSound(1600, 0.15), 200);
+        }
+
+        function playOpenSound() {
+            playSound(400, 0.2);
+            setTimeout(() => playSound(600, 0.15), 150);
+            setTimeout(() => playSound(800, 0.2), 280);
+        }
+
+        // Klik na obálku
+        const envelope = document.getElementById('envelope');
+        const letterContainer = document.getElementById('letterContainer');
+        const closeLetter = document.getElementById('closeLetter');
+
+        envelope.addEventListener('click', () => {
+            playOpenSound();
+            letterContainer.classList.add('show');
+            envelope.style.display = 'none';
+        });
+
+        closeLetter.addEventListener('click', () => {
+            playMagicSound();
+            letterContainer.classList.remove('show');
+            envelope.style.display = 'block';
+        });
+
+        // Toggle zvuku
+        soundToggle.addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            soundToggle.style.opacity = soundEnabled ? '1' : '0.5';
+            playMagicSound();
+        });
+
+        // Zvuk při načtení
+        window.addEventListener('load', () => {
+            setTimeout(playMagicSound, 500);
+        });
+    </script>
+</body>
+</html>
